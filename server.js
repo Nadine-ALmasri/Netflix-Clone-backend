@@ -17,7 +17,7 @@ const client = new pg.Client ((process.env.DATABASE_URL))
 
 server.get('/addMovie', gitMovieHandler)
 
-
+server.delete('/DELETE/:id', deleteHandler)
 
 server.get('/trending', trendingMovie)
 
@@ -25,6 +25,26 @@ server.post('/addMovie',addMovieHandler)
 
 
 ////////////////////////////////////////////////
+
+
+
+function deleteHandler(req,res){
+    const id = req.params.id;
+    console.log(req.params);
+    const sql = `DELETE FROM favMovie WHERE id=${id};`
+    client.query(sql)
+    .then((data)=>{
+        res.status(202).send(data)
+    })
+    .catch((error)=>{
+        errorHandler(error,req,res)
+    })
+}
+
+
+
+
+
 
 function gitMovieHandler(req,res){
     const sql = `SELECT * FROM favMovie`;
