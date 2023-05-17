@@ -23,11 +23,24 @@ server.get('/trending', trendingMovie)
 
 server.post('/addMovie',addMovieHandler)
 
+server.post('/addComment',addComments)
+////////////////////////////////////////////////
+function addComments(req,res){
+    console.log ("we got a newcomment")
+    const comment = req.body;
+    console.log(comment);
+    const sql = `INSERT INTO favMovie (comments)
+    VALUES ($5);`
+    const values = [comment.comment]; 
+    client.query(sql,values)
+    .then(data=>{
+        res.send("The data has been added successfully");
+    })
+    .catch((error)=>{
+        errorHandler(error,req,res)
+    })}
 
 ////////////////////////////////////////////////
-
-
-
 function deleteHandler(req,res){
     const id = req.params.id;
     console.log(req.params);
