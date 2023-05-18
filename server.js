@@ -16,7 +16,7 @@ const client = new pg.Client ((process.env.DATABASE_URL||'postgresql://localhost
 
 server.put('/newMovie/:id',updateFavMovie)
 server.get('/addMovie', gitMovieHandler)
-
+server.get('/', homeHandler)
 server.delete('/DELETE/:id', deleteHandler)
 
 server.get('/trending', trendingMovie)
