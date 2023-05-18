@@ -10,7 +10,7 @@ server.use(express.json())
 const data = require('./data.json')
 
 const pg = require('pg');
-const client = new pg.Client ((process.env.DATABASE_URL)) 
+const client = new pg.Client ((process.env.DATABASE_URL||'postgresql://localhost:5432/movielist')) 
 
 ///////////////////////////////////////////////////////////////
 
@@ -25,6 +25,15 @@ server.post('/addMovie',addMovieHandler)
 
 server.put('/addComment/:id',addComments)
 ////////////////////////////////////////////////
+function homeHandler(req, res) {
+    res.status(200).send("Hello from the My Movie App")
+}
+
+
+
+
+
+/////////////////////////////////////
 function addComments(req,res){
     // De-structuring 
     // const id = req.params.id;
