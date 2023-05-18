@@ -14,7 +14,7 @@ const client = new pg.Client ((process.env.DATABASE_URL))
 
 ///////////////////////////////////////////////////////////////
 
-
+server.put('/newMovie/:id',updateFavMovie)
 server.get('/addMovie', gitMovieHandler)
 
 server.delete('/DELETE/:id', deleteHandler)
@@ -23,22 +23,56 @@ server.get('/trending', trendingMovie)
 
 server.post('/addMovie',addMovieHandler)
 
-server.post('/addComment',addComments)
+server.put('/addComment/:id',addComments)
 ////////////////////////////////////////////////
 function addComments(req,res){
-    console.log ("we got a newcomment")
-    const comment = req.body;
-    console.log(comment);
-    const sql = `INSERT INTO favMovie (comments)
-    VALUES ($5);`
-    const values = [comment.comment]; 
-    client.query(sql,values)
-    .then(data=>{
-        res.send("The data has been added successfully");
+    // De-structuring 
+    // const id = req.params.id;
+    const {id} = req.params;
+    console.log(req.body);
+    const sql = `UPDATE favMovie
+    SET comment = $5
+    WHERE id = ${id};`
+    const {comment} = req.body;
+    const values = [comment];
+    client.query(sql,values).then((data)=>{
+        res.send(data)
     })
     .catch((error)=>{
         errorHandler(error,req,res)
-    })}
+    })
+}
+
+////////////////////////////////////////////////////////////////////////
+
+function updateFavMovie(req, res) {
+    const id = req.params.id;
+    const updatedMovie = req.body;
+    const sql = `UPDATE favMovie
+    SET title=$1, release_date=$2 ,poster_path=$3, overview=$4
+    WHERE id = ${id} RETURNING *;`;
+   
+    const values = [updatedMovie.title, updatedMovie.release_date, updatedMovie.poster_path, updatedMovie.overview];
+    client.query(sql, values)
+        .then(data => {
+            const sql = `SELECT * FROM favMovie;`;
+            client.query(sql)
+                .then(allData => {
+                    res.send(allData.rows)
+                })
+                .catch((error) => {
+                    errorHandler(error, req, res)
+                })
+        })
+        .catch(error => {
+            console.log(error)
+        })
+}
+
+
+
+
+
 
 ////////////////////////////////////////////////
 function deleteHandler(req,res){
@@ -47,13 +81,20 @@ function deleteHandler(req,res){
     const sql = `DELETE FROM favMovie WHERE id=${id};`
     client.query(sql)
     .then((data)=>{
-        res.status(202).send(data)
-    })
-    .catch((error)=>{
-        errorHandler(error,req,res)
-    })
+        const sql = `SELECT * FROM favMovie;`;
+            client.query(sql)
+                .then(allData => {
+                    res.send(allData.rows)
+                    console.log("a movie deleted")
+                })
+                .catch((error) => {
+                    errorHandler(error, req, res)
+                })
+        })
+        .catch(error => {
+            console.log(error)
+        })
 }
-
 
 
 
