@@ -14,8 +14,8 @@ const client = new pg.Client ((process.env.DATABASE_URL||'postgresql://localhost
 
 ///////////////////////////////////////////////////////////////
 
-server.put('/newMovie/:id',updateFavMovie)
-server.get('/addMovie', gitMovieHandler)
+server.put('/updatedMovie/:id',updateFavMovie)
+server.get('/getMovie', gitMovieHandler)
 server.get('/', homeHandler)
 server.delete('/DELETE/:id', deleteHandler)
 
@@ -23,7 +23,7 @@ server.get('/trending', trendingMovie)
 
 server.post('/addMovie',addMovieHandler)
 
-server.put('/addComment/:id',addComments)
+//server.put('/addComment/:id',addComments)
 ////////////////////////////////////////////////
 function homeHandler(req, res) {
     res.status(200).send("Hello from the My Movie App")
@@ -34,23 +34,23 @@ function homeHandler(req, res) {
 
 
 /////////////////////////////////////
-function addComments(req,res){
+/*function addComments(req,res){
     // De-structuring 
     // const id = req.params.id;
-    const {id} = req.params;
+    const id = req.params.id;
     console.log(req.body);
     const sql = `UPDATE favMovie
-    SET comment = $5
-    WHERE id = ${id};`
-    const {comment} = req.body;
-    const values = [comment];
+    SET comments = $5
+    WHERE id = ${id} RETURNING *;`
+    const {comments} = req.body;
+    const values = [comments];
     client.query(sql,values).then((data)=>{
         res.send(data)
     })
     .catch((error)=>{
         errorHandler(error,req,res)
     })
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -58,10 +58,10 @@ function updateFavMovie(req, res) {
     const id = req.params.id;
     const updatedMovie = req.body;
     const sql = `UPDATE favMovie
-    SET title=$1, release_date=$2 ,poster_path=$3, overview=$4
+    SET title=$1, release_date=$2 ,poster_path=$3, overview=$4, comment=$5
     WHERE id = ${id} RETURNING *;`;
    
-    const values = [updatedMovie.title, updatedMovie.release_date, updatedMovie.poster_path, updatedMovie.overview];
+    const values = [updatedMovie.title, updatedMovie.release_date, updatedMovie.poster_path, updatedMovie.overview, updatedMovie.comment];
     client.query(sql, values)
         .then(data => {
             const sql = `SELECT * FROM favMovie;`;
@@ -166,9 +166,9 @@ function addMovieHandler(req,res){
     console.log ("we got a new fav movie")
     const addedMovie = req.body;
     console.log(addedMovie);
-    const sql = `INSERT INTO favMovie (title,release_date,poster_path,overview)
-    VALUES ($1,$2,$3,$4);`
-    const values = [addedMovie.title, addedMovie.release_date , addedMovie.poster_path, addedMovie.overview]; 
+    const sql = `INSERT INTO favMovie (title,release_date,poster_path,overview,comment)
+    VALUES ($1,$2,$3,$4,$5);`
+    const values = [addedMovie.title, addedMovie.release_date , addedMovie.poster_path, addedMovie.overview, addedMovie.comment]; 
     client.query(sql,values)
     .then(data=>{
         res.send("The data has been added successfully");
