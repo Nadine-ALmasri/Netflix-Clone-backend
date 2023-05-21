@@ -8,12 +8,12 @@ server.use(cors())
 const APIKey = process.env.apikey|| "26913528334206209115fe1715eee547"
 server.use(express.json())
 const data = require('./data.json')
-const cors = require("cors");
+
 const pg = require('pg');
 const client = new pg.Client ((process.env.DATABASE_URL||'postgresql://localhost:5432/movielist')) 
 
 ///////////////////////////////////////////////////////////////
-server.use(cors());
+
 server.put('/updatedMovie/:id',updateFavMovie)
 server.get('/getMovie', gitMovieHandler)
 server.get('/', homeHandler)
